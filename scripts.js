@@ -12,6 +12,10 @@ const STYLE_BG_DATE_TODAY = "background-color: #fcf2ba !important; color: #84750
 
 const STYLE_BG_STATUS_READY2DEPLOY = "background-color: #bbf9a9 !important";
 
+const STYLE_BG_TRIAD_IMPORTANT = "background-color: #a5d8ff !important; color: #00F";
+const STYLE_BG_TRIAD_URGENT = "background-color: #ffbaba !important; color: #F00";
+const STYLE_BG_TRIAD_CIRCUMSTANTIAL = "background-color: #fcf2ba !important; color: #847500";
+
 
 
 
@@ -42,6 +46,7 @@ function processRow(){
         highlightSituation(row);
         highlightTodayTasks(row);
         highlightLateTasks(row);
+        highlightTimeTriad(row);
     });
     
 }
@@ -81,7 +86,7 @@ function highlightTodayTasks(row){
         return date == today;
     }
     
-    let col = row.find("span.wp-table--cell-container.dueDate");
+    let col = row.find("span.wp-table--cell-container.dueDate, span.wp-table--cell-container.customField10");
     let strValueColumn = col.text();
     
     if(willPaintRow(strValueColumn)){
@@ -99,11 +104,33 @@ function highlightLateTasks(row){
         return date < today;
     }
     
-    let col = row.find("span.wp-table--cell-container.dueDate");
+    let col = row.find("span.wp-table--cell-container.dueDate, span.wp-table--cell-container.customField10");
     let strValueColumn = col.text();
     
     if(willPaintRow(strValueColumn)){
         //console.log(strValueColumn + " highlightLateTasks");
         paintRow(col.parent(), STYLE_BG_DATE_LATE);
+    }
+}
+
+
+function highlightTimeTriad(row){
+    let willPaintRow = (txt) => {
+        switch (txt.toLowerCase()) {
+            case "importante": return STYLE_BG_TRIAD_IMPORTANT;
+            case "urgente": return STYLE_BG_TRIAD_URGENT;
+            case "circunstancial": return STYLE_BG_TRIAD_CIRCUMSTANTIAL;
+        
+            default: return undefined;
+        }
+    }
+    
+    let col = row.find("span.wp-table--cell-container.customField5");
+    let strValueColumn = col.text();
+    let triadColorStyle = willPaintRow(strValueColumn);
+    
+    if(triadColorStyle !== undefined){
+        //console.log(strValueColumn + " highlightLateTasks");
+        paintRow(col.parent(), triadColorStyle);
     }
 }
